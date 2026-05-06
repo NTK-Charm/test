@@ -7,31 +7,31 @@ echo "=== Starting Automated Tests ==="
 # Install necessary tools
 apt update && apt install -y curl wget mysql-client
 
-# Wait for MariaDB to be ready
-# echo "Waiting for MariaDB to become available..."
-# for i in {1..60}; do
-#   if mysqladmin ping -h db -u root -p"$MYSQL_ROOT_PASSWORD" --silent; then
-#     echo "✅ MariaDB is ready"
-#     break
-#   fi
-#   echo "⏳ MariaDB not ready yet. Retrying... ($i/60)"
-#   sleep 5
-#   if [ "$i" -eq 60 ]; then
-#     echo "❌ MariaDB did not become ready in time"
-#     echo "--- MariaDB logs ---"
-#     mysqladmin version -h db -u root -p"$MYSQL_ROOT_PASSWORD" || true
-#     exit 1
-#   fi
-# done
+Wait for MariaDB to be ready
+echo "Waiting for MariaDB to become available..."
+for i in {1..60}; do
+  if mysqladmin ping -h db -u root -p"$MYSQL_ROOT_PASSWORD" --silent; then
+    echo "✅ MariaDB is ready"
+    break
+  fi
+  echo "⏳ MariaDB not ready yet. Retrying... ($i/60)"
+  sleep 5
+  if [ "$i" -eq 60 ]; then
+    echo "❌ MariaDB did not become ready in time"
+    echo "--- MariaDB logs ---"
+    mysqladmin version -h db -u root -p"$MYSQL_ROOT_PASSWORD" || true
+    exit 1
+  fi
+done
 
-# Test database connectivity
-# echo "Testing MariaDB connectivity..."
-# if mysql -h db -u wordpress_user -p"$MYSQL_PASSWORD" wordpress_db -e "SELECT 1;" > /dev/null 2>&1; then
-#     echo "✅ Database connection successful"
-# else
-#     echo "❌ Database connection failed"
-#     exit 1
-# fi
+Test database connectivity
+echo "Testing MariaDB connectivity..."
+if mysql -h db -u wordpress_user -p"$MYSQL_PASSWORD" wordpress_db -e "SELECT 1;" > /dev/null 2>&1; then
+    echo "✅ Database connection successful"
+else
+    echo "❌ Database connection failed"
+    exit 1
+fi
 
 # Test WordPress web server accessibility
 echo "Testing WordPress web server..."

@@ -27,6 +27,15 @@ jobs:
           MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
           MYSQL_USER=${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          WORDPRESS_DB_HOST=db:3306
+          WORDPRESS_DB_USER=${{ secrets.MYSQL_USER }}
+          WORDPRESS_DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          WORDPRESS_DB_NAME=${{ secrets.MYSQL_DATABASE }}
+          WORDPRESS_TABLE_PREFIX=wp_
+          WORDPRESS_DEBUG=false
+          WORDPRESS_CONFIG_EXTRA=define('WP_DEBUG_LOG', false);
+          ENVIRONMENT=ci
+          DOMAIN=localhost
           EOF
 
       - name: Build thử Docker Images
@@ -34,24 +43,28 @@ jobs:
 
       - name: Start services for connectivity check
         run: |
+          export $(cat .env | xargs)
           docker compose up -d
           docker compose ps
 
-      # - name: Wait for MariaDB
-      #   run: |
-      #     for i in {1..30}; do
-      #       STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q db))
-      #       if [ "$STATUS" = "healthy" ]; then
-      #         echo "MariaDB is ready"
-      #       break
-      #       fi
-      #       echo "Waiting for MariaDB... ($i/30)"
-      #       sleep 5
-      #       if [ "$i" -eq 30 ]; then
-      #         docker compose logs db
-      #         exit 1
-      #       fi
-      #     done
+      - name: Wait for MariaDB
+        run: |
+          echo "Waiting for MariaDB to be healthy..."
+          for i in {1..10}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q db) 2>/dev/null || echo "starting")
+            if [ "$STATUS" = "healthy" ]; then
+              echo "✅ MariaDB is healthy"
+              break
+            fi
+            echo "⏳ MariaDB status: $STATUS ($i/10)"
+            sleep 5
+            if [ "$i" -eq 10 ]; then
+              echo "❌ MariaDB did not become healthy in time"
+              echo "--- MariaDB logs ---"
+              docker compose logs db | tail -30
+              exit 1
+            fi
+          done
       - name: Run Docker Runner tests
         run: docker compose run --rm test-runner
 

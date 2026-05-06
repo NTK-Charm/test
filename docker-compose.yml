@@ -20,6 +20,7 @@ services:
 
   db:
     image: mariadb:latest
+    container_name: mariadb
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}

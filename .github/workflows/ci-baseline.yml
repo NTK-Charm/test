@@ -37,21 +37,21 @@ jobs:
           docker compose up -d
           docker compose ps
 
-      - name: Wait for MariaDB readiness
+      - name: Wait for MariaDB
         run: |
           for i in {1..30}; do
-            docker compose run --rm db \
-            mysqladmin ping -h db \
-            -u root -p"${{ secrets.MYSQL_ROOT_PASSWORD }}" --silent && break
-            echo "Waiting for MariaDB... ($i/30)"
-            sleep 5
-            if [ "$i" -eq 30 ]; then
-              echo "MariaDB did not become ready in time"
-              docker compose logs db
-              exit 1
-            fi
+          STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q db))
+          if [ "$STATUS" = "healthy" ]; then
+            echo "MariaDB is ready"
+          break
+          fi
+          echo "Waiting for MariaDB... ($i/30)"
+          sleep 5
+          if [ "$i" -eq 30 ]; then
+            docker compose logs db
+            exit 1
+          fi
           done
-
       - name: Run Docker Runner tests
         run: docker compose run --rm test-runner
 

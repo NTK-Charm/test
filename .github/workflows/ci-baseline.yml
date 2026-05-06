@@ -20,8 +20,30 @@ jobs:
       - name: Kiểm tra file Docker Compose
         run: docker compose config
 
+      - name: Tạo file .env từ secrets
+        run: |
+          cat > .env <<'EOF'
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          EOF
+
       - name: Build thử Docker Images
         run: docker compose build
+
+      - name: Start services for connectivity check
+        run: |
+          docker compose up -d
+          docker compose ps
+
+      - name: Run Docker Runner tests
+        run: docker compose run --rm test-runner
+
+
+
+      - name: Shutdown services
+        run: docker compose down -v
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest

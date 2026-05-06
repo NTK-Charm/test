@@ -1,1 +1,16 @@
+# Environment files
+.env
+.env.local
+.env.*.local
 
+# Docker volumes (optional, for local development)
+# wordpress_data/
+# db_data/
+
+# Testing artifacts
+tests/results/
+tests/logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db

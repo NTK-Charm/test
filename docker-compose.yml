@@ -20,6 +20,7 @@ services:
 
   db:
     image: mariadb:latest
+    restart: always
     environment:
       MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MARIADB_DATABASE: ${MYSQL_DATABASE}
@@ -35,6 +36,11 @@ services:
       start_period: 30s
     networks:
       - wordpress_net
+    adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
 
   test-runner:
     image: ubuntu:20.04

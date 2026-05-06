@@ -9,15 +9,17 @@ apt update && apt install -y curl wget mysql-client
 
 # Wait for MariaDB to be ready
 echo "Waiting for MariaDB to become available..."
-for i in {1..30}; do
+for i in {1..60}; do
   if mysqladmin ping -h db -u root -p"$MYSQL_ROOT_PASSWORD" --silent; then
     echo "✅ MariaDB is ready"
     break
   fi
-  echo "⏳ MariaDB not ready yet. Retrying... ($i/30)"
+  echo "⏳ MariaDB not ready yet. Retrying... ($i/60)"
   sleep 5
-  if [ "$i" -eq 30 ]; then
+  if [ "$i" -eq 60 ]; then
     echo "❌ MariaDB did not become ready in time"
+    echo "--- MariaDB logs ---"
+    mysqladmin version -h db -u root -p"$MYSQL_ROOT_PASSWORD" || true
     exit 1
   fi
 done

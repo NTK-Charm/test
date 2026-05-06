@@ -27,34 +27,7 @@ jobs:
           MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
           MYSQL_USER=${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-          WORDPRESS_DB_HOST=db:3306
-          WORDPRESS_DB_USER=${{ secrets.MYSQL_USER }}
-          WORDPRESS_DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-          WORDPRESS_DB_NAME=${{ secrets.MYSQL_DATABASE }}
-          WORDPRESS_TABLE_PREFIX=wp_
-          WORDPRESS_DEBUG=false
-          WORDPRESS_CONFIG_EXTRA=define('WP_DEBUG_LOG', false);
-          ENVIRONMENT=ci
-          DOMAIN=localhost
           EOF
-
-      - name: Verify GitHub Secrets are set
-        run: |
-          echo "Checking if secrets are configured..."
-          if [ -z "${{ secrets.MYSQL_ROOT_PASSWORD }}" ]; then
-            echo "❌ ERROR: MYSQL_ROOT_PASSWORD secret is not set"
-            echo "Please add GitHub Secrets in: Settings > Secrets and variables > Actions"
-            echo "Required secrets:"
-            echo "  - MYSQL_ROOT_PASSWORD"
-            echo "  - MYSQL_DATABASE"
-            echo "  - MYSQL_USER"
-            echo "  - MYSQL_PASSWORD"
-            exit 1
-          fi
-          echo "✅ Secrets are configured"
-
-      - name: Display .env file (values masked)
-        run: cat .env | grep -v PASSWORD || true
 
       - name: Build thử Docker Images
         run: docker compose build
@@ -62,24 +35,17 @@ jobs:
       - name: Start services for connectivity check
         run: |
           docker compose up -d
-          echo "Container status:"
           docker compose ps
-          sleep 5
 
       - name: Wait for MariaDB readiness
         run: |
-          echo "Waiting for MariaDB to become ready..."
-          for i in {1..60}; do
-            if docker compose exec -T db mysqladmin ping -u root -p"${{ secrets.MYSQL_ROOT_PASSWORD }}" --silent 2>/dev/null; then
-              echo "✅ MariaDB is ready!"
-              break
-            fi
-            echo "⏳ Waiting... ($i/60)"
+          for i in {1..30}; do
+            docker compose exec -T db mysqladmin ping -u root -p"${{ secrets.MYSQL_ROOT_PASSWORD }}" --silent && break
+            echo "Waiting for MariaDB... ($i/30)"
             sleep 5
-            if [ "$i" -eq 60 ]; then
-              echo "❌ MariaDB did not become ready after 5 minutes"
-              echo "--- DB Logs ---"
-              docker compose logs db | tail -50
+            if [ "$i" -eq 30 ]; then
+              echo "MariaDB did not become ready in time"
+              docker compose logs db
               exit 1
             fi
           done

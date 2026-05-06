@@ -43,7 +43,6 @@ jobs:
 
       - name: Start services for connectivity check
         run: |
-          export $(cat .env | xargs)
           docker compose up -d
           docker compose ps
 

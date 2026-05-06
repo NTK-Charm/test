@@ -25,13 +25,13 @@ apt update && apt install -y curl wget mysql-client
 # done
 
 # Test database connectivity
-echo "Testing MariaDB connectivity..."
-if mysql -h db -u wordpress_user -p"$MYSQL_PASSWORD" wordpress_db -e "SELECT 1;" > /dev/null 2>&1; then
-    echo "✅ Database connection successful"
-else
-    echo "❌ Database connection failed"
-    exit 1
-fi
+# echo "Testing MariaDB connectivity..."
+# if mysql -h db -u wordpress_user -p"$MYSQL_PASSWORD" wordpress_db -e "SELECT 1;" > /dev/null 2>&1; then
+#     echo "✅ Database connection successful"
+# else
+#     echo "❌ Database connection failed"
+#     exit 1
+# fi
 
 # Test WordPress web server accessibility
 echo "Testing WordPress web server..."

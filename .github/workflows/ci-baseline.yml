@@ -48,6 +48,15 @@ jobs:
           docker compose up -d
           docker compose ps
 
+      - name: Debug env
+        run: |
+          cat .env
+      - name: Show containers
+        run: docker ps -a
+
+      - name: Show MariaDB logs
+        run: docker compose logs db
+        
       - name: Wait for MariaDB
         run: |
           echo "Waiting for MariaDB to be healthy..."

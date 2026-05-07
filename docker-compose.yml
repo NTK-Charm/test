@@ -22,13 +22,15 @@ services:
     image: mariadb:latest
     container_name: mariadb
     restart: always
+    env_file:
+      - .env
     environment:
-      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${MYSQL_DATABASE}
-      MARIADB_USER: ${MYSQL_USER}
-      MARIADB_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -58,7 +60,7 @@ services:
 
 volumes:
   wordpress_data:
-  db_data:
+  mysql_data:
 
 networks:
   wordpress_net:

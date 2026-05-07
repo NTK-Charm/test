@@ -17,8 +17,7 @@ jobs:
       - name: Thiết lập Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Kiểm tra file Docker Compose
-        run: docker compose config
+      
 
       - name: Tạo file .env từ secrets
         run: |
@@ -37,6 +36,9 @@ jobs:
           ENVIRONMENT=ci
           DOMAIN=localhost
           EOF
+          
+      - name: Kiểm tra file Docker Compose
+        run: docker compose config
 
       - name: Build thử Docker Images
         run: docker compose build

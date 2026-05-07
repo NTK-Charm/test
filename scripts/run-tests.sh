@@ -24,7 +24,7 @@ for i in {1..60}; do
   fi
 done
 
-Test database connectivity
+echo "Testing database connectivity"
 echo "Testing MariaDB connectivity..."
 if mysql -h db -u wordpress_user -p"$MARIADB_PASSWORD" wordpress_db -e "SELECT 1;" > /dev/null 2>&1; then
     echo "✅ Database connection successful"
